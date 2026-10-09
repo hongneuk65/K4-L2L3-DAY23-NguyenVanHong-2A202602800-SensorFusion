@@ -83,5 +83,5 @@ Môi trường Python 3.12.10, PyTorch CPU. Venv dùng các thư viện khoa h�
 - [x] Đã commit đủ sáu artifacts do runner sinh; không sửa tay metrics/log.
 - [x] Đã điền thông tin, kết quả, sáu câu giải thích và khai báo AI.
 - [x] Dữ liệu Waymo, weights, paths.yaml, .env được giữ local và không commit.
-- [ ] `python tools/check_submission.py` báo `KẾT QUẢ: SẴN SÀNG NỘP` (xác nhận sau commit báo cáo).
+- [x] `python tools/check_submission.py` báo `KẾT QUẢ: SẴN SÀNG NỘP`; toàn bộ kiểm tra đã pass sau khi commit báo cáo và artifacts.
 - [ ] Đã push và nộp link repo + commit hash trên LMS (LMS do học viên thực hiện).
