@@ -33,10 +33,11 @@ Camera dùng tâm hộp ground-truth FRONT có nhiễu seeded, không dùng came
 Chạy từ gốc repo trên PowerShell:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest student/tests -q --disable-warnings
+.\.venv\Scripts\python.exe -X utf8 -m pytest student/tests -q --disable-warnings --basetemp .pytest_cache/lab-temp
 $env:OMP_NUM_THREADS = "4"
 $env:MKL_NUM_THREADS = "4"
 .\.venv\Scripts\fusion-run-lab.exe --config student/config/paths.yaml --fusion compare --seed 0
+.\.venv\Scripts\python.exe -X utf8 tools/check_submission.py
 ```
 
 Cấu hình local (không commit):
@@ -50,6 +51,20 @@ frame_end: 198
 ```
 
 Môi trường Python 3.12.10, PyTorch CPU. Venv dùng các thư viện khoa học có sẵn trên máy và cài các dependency còn thiếu của repo. Có thể cài lại theo README bằng `python -m pip install -e platform/third_party/waymo_reader -e platform -e student pytest` trong venv Python 3.12 mới. Số thread chỉ giới hạn tài nguyên CPU, không thay thuật toán hoặc tham số tracking.
+
+Trên Windows, `-X utf8` tránh lỗi mã hóa khi công cụ kiểm tra in tiếng Việt. `--basetemp` đặt thư mục tạm của pytest trong repo, tránh lỗi quyền truy cập thư mục tạm mặc định; thư mục `.pytest_cache/` đã được Git bỏ qua. Lần kiểm tra lại nhận 128 passed, không failed/xfailed. Test có cảnh báo NumPy matrix và phép toán với tọa độ không hợp lệ trong các ca kiểm tra; sau khi kết thúc còn thông báo từ destructor của pyreadline3, nhưng pytest trả exit code 0.
+
+### Đối chiếu checkpoint và bằng chứng
+
+- CP0: cấu hình local trỏ đúng segment và weights; thông tin học viên đã điền.
+- CP1: sáu hàm EKF trong `workspace/kalman.py`; commit `6b9f369`.
+- CP2: ba hàm FOV, projection và measurement camera trong `workspace/camera_fusion.py`; commit `4e80557`.
+- CP3: năm hàm gating và association trong `workspace/association.py`; commit `22ec6af`.
+- CP4: ba hàm khởi tạo, score và xóa trong `workspace/track_management.py`; commit `b8b45f6`.
+- CP5: sáu artifacts của lần chạy compare 0–198, seed 0; commit `6cac944`.
+- CP6: báo cáo, khai báo AI và kiểm tra nộp bài; lấy HEAD cuối cùng sau commit để nộp LMS.
+
+Thứ tự predict → LiDAR → camera nằm ở `platform/fusion_lab/scripts/run_lab.py`, dòng 200, 202 và 209. Công thức EKF nằm ở `workspace/kalman.py`, dòng 20–130; gating và vòng gán nằm ở `workspace/association.py`, từ dòng 25; điều kiện lifecycle nằm ở `workspace/track_management.py`, từ dòng 41. Các đường dẫn và dòng này là bằng chứng để đối chiếu khi vấn đáp.
 
 ## Giải thích ngắn (Parts E–H — tự viết)
 
@@ -84,4 +99,5 @@ Môi trường Python 3.12.10, PyTorch CPU. Venv dùng các thư viện khoa h�
 - [x] Đã điền thông tin, kết quả, sáu câu giải thích và khai báo AI.
 - [x] Dữ liệu Waymo, weights, paths.yaml, .env được giữ local và không commit.
 - [x] `python tools/check_submission.py` báo `KẾT QUẢ: SẴN SÀNG NỘP`; toàn bộ kiểm tra đã pass sau khi commit báo cáo và artifacts.
-- [ ] Đã push và nộp link repo + commit hash trên LMS (LMS do học viên thực hiện).
+- [x] Repo GitHub đã có code và artifacts; commit remote main được kiểm tra trực tiếp. Sau mỗi sửa báo cáo, push và xác nhận HEAD cuối cùng trước khi nộp.
+- [ ] Đã nộp link repo + commit hash trên LMS (chưa có bằng chứng nộp LMS).
